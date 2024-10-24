@@ -40,7 +40,7 @@ def print_choices(player: "Human"):
     choosing_action = False
     player.get_position()
 
-    if player.pos_x == 0 and player.pos_y == 0:
+    if player.pos_x == 5 and player.pos_y == 5:
         choosing_action = True
         
         while choosing_action:

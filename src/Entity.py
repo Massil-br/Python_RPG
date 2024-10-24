@@ -80,7 +80,9 @@ class Human(Entity):
         self.backpack: List["Item"] = []
         self.backpack_limit = 20
         self.equipped_weapon :"Weapon"  = None
-        self.map = Map(9,5)
+        self.map = Map(10,10)
+        self.pox_x = 5
+        self.pos_y = 5
     
     
     def add_to_backpack(self, item: "Item"):
