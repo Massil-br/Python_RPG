@@ -1,4 +1,5 @@
 import os
+from .Entity import *
 def clear_console():
     os.system('cls')
 
@@ -35,4 +36,34 @@ def print_init_menu():
     print("You are trying to remember how you got here, but you don't remember anything before you woke up in this forest")
     press_enter_clear()
     
-   
+def print_choices(player: "Human"):
+    choosing_action = False
+    player.get_position()
+
+    if player.pos_x == 0 and player.pos_y == 0:
+        choosing_action = True
+        
+        while choosing_action:
+            print("You see a little road in the north, and another in the East.")
+            print("Where do you want to go?")
+            print("1. Go NORTH")
+            print("2. Go EAST")
+
+            try:
+                choice = input("Enter your choice (1 or 2): ")
+                if choice == "1":
+                    print("You head NORTH.")
+                    player.go_north()
+                    choosing_action = False  
+                elif choice == "2":
+                    print("You head EAST.")
+                    choosing_action = False 
+                    player.go_east()
+                else:
+                    print("\nInvalid choice. Please enter '1' or '2'.")
+                    press_enter_clear()  
+            except Exception as e:
+                print(f"An unexpected error occurred: {e}")
+                press_enter_clear()     
+                
+         

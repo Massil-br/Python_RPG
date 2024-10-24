@@ -79,7 +79,7 @@ class Human(Entity):
         self.max_xp = 20
         self.backpack: List["Item"] = []
         self.backpack_limit = 20
-        self.equipped_weapon :"Weapon" = None
+        self.equipped_weapon :"Weapon"  = None
         self.map = Map(9,5)
     
     
@@ -117,12 +117,13 @@ class Human(Entity):
             self.defense * Entity.level_ratio
     
     def to_dict(self):
-       data = super().to_dict()
-       data.update({
-           "xp": self.xp,
-           "backpack": [item.to_dict() for item in self.backpack],
-           "equipped_weapon": self.equipped_weapon.to_dict() if self.equipped_weapon else None
-       })
+        data = super().to_dict()
+        data.update({
+            "xp": self.xp,
+            "backpack": [item.to_dict() for item in self.backpack],
+            "equipped_weapon": self.equipped_weapon.to_dict() if self.equipped_weapon else None
+        })
+        return data
     
     
     def go_north(self):
@@ -162,12 +163,12 @@ class Monster(Entity):
 
 
 
-def save_game(entities: List[Entity], save_name: str):
-    
+def save_game(entities_list: List[Entity], save_name: str):
     os.makedirs('saves', exist_ok=True)
     filename = os.path.join('saves', f"{save_name}.json")
-    
+
     with open(filename, 'w') as f:
         # Convert all entities to dictionaries and save them in a list
-        json.dump([entity.to_dict() for entity in entities], f, indent=4)
+        json.dump([entity.to_dict() for entity in entities_list if entity is not None], f, indent=4)
+
     print(f"Game saved in {filename}.")

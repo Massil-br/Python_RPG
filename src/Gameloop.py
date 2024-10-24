@@ -12,25 +12,31 @@ def create_human(username) -> Human:
 
 
 
-def create_username()-> str:
+def create_username() -> str:
     print("Creating New Game ...")
     player = None
-    choosing_username = True
     username = "error"
+    choosing_username = True
+
     while choosing_username:
-        print("Please enter your username")
-        username = input()
-        if len(username) < 3:
-            print("Error, your username must have at least 3 chars")
-            input("Please press Enter to continue")
-        else:
-            choosing_username = False
-            break
-    print(f"your username is {username}")
-    if username != "error":
-        return username
-    else: 
-        print("error while sending the username")
+        try:
+            print("Please enter your username")
+            username = input()
+            
+            if len(username) < 3:
+                print("Error, your username must have at least 3 characters.")
+                input("Please press Enter to try again.")
+            else:
+                choosing_username = False
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            input("Press Enter to continue...")
+
+        print(f"Your username is {username}")
+        
+    return username
+
+    
 
 
 
@@ -38,5 +44,5 @@ def game_loop(player : "Human", load_or_new : "Load_or_new"):
     if load_or_new == Load_or_new.NEW:
         print_init_menu()
             
-        
+    print_choices(player)    
     

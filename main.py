@@ -1,5 +1,6 @@
 import src.Menu as menu
 import src.Gameloop as gl
+import src.Entity as en
 def main():
     print("hello")
     
@@ -40,14 +41,15 @@ def main():
     
     if create_game == True:
         username = gl.create_username()
-        if username == None:
+        if username == None or username == "error":
             return
-        player = gl.create_human(username)
+        player : "en.Human" = gl.create_human(username)
     
         gl.game_loop(player, gl.Load_or_new.NEW)
-    
+        player.get_position()
+        humans : list["en.Entity"] = [player]
+        en.save_game(humans, "mysave")
         
-
 main()
 
 
