@@ -114,7 +114,7 @@ class Human(Entity):
     def check_level_up(self):
         if self.xp >= self.max_xp:
             self.level +=1
-            self.xp = (self.xp-self.max_xp)
+            self.xp -= self.max_xp
             self.max_xp * Entity.level_ratio
             self.defense * Entity.level_ratio
     
