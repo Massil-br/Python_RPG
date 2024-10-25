@@ -1,15 +1,15 @@
 [
     {
         "type": "Human",
-        "name": "MASSIL",
+        "name": "massil",
         "max_health": 20,
         "strength": 5,
         "level": 0,
         "health": 20,
         "is_alive": true,
         "defense": 2,
-        "pos_x": 0,
-        "pos_y": 1,
+        "pos_x": 5,
+        "pos_y": 6,
         "xp": 0,
         "backpack": [],
         "equipped_weapon": null

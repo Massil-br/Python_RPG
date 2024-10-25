@@ -81,7 +81,7 @@ class Human(Entity):
         self.backpack_limit = 20
         self.equipped_weapon :"Weapon"  = None
         self.map = Map(10,10)
-        self.pox_x = 5
+        self.pos_x = 5
         self.pos_y = 5
     
     
