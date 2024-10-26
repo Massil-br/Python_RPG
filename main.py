@@ -44,11 +44,13 @@ def main():
         if username == None or username == "error":
             return
         player : "en.Human" = gl.create_human(username)
-    
-        gl.game_loop(player, gl.Load_or_new.NEW)
-        player.get_position()
         humans : list["en.Entity"] = [player]
         en.save_game(humans, "mysave")
+        gl.game_loop(player, gl.Load_or_new.NEW)
+        en.save_game(humans, "mysave")
+        player.get_position()
+        
+        
         
 main()
 
