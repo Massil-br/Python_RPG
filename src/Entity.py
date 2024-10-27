@@ -31,11 +31,9 @@ class Entity : #top Entity  mother class
         
     
     def present(self):
-        print(f"ID : {self.id}")
-        print(f"hello my name is {self.name}")
-        print(f"i am level {self.level}")
-        print(f"i have {self.strength} of strength")
-        print(f"Health : {self.health}")
+        print(f"{self.name}  : Lvl : {self.level}")
+        print(f"Health : {self.health} / {self.max_health}")
+        
     
     def levelup(self):
         self.level += 1
@@ -47,7 +45,7 @@ class Entity : #top Entity  mother class
         elif self.health > self.max_health:
             self.health = self.max_health
     def attack(self, target:"Entity"):
-        if self.is_alive:
+        if self.is_alive and target.is_alive:
             target.health -= (self.strength - target.defense)
             target.update_health()
             
@@ -146,7 +144,13 @@ class Human(Entity):
     
     
     def get_position(self):
-        print(f"you are in {self.pos_x} , {self.pos_y}")     
+        print(f"you are in {self.pos_x} , {self.pos_y}")  
+    
+    def present(self):
+        super().present()
+        print(f"XP : {self.xp} / {self.max_xp}")
+        print(f"Attack Damage : {self.strength}")
+        print(f"Defense : {self.defense}") 
             
     
 class Monster(Entity):
