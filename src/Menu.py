@@ -17,7 +17,6 @@ def print_main_menu():
     print("3. About")
     print("4. Exit")
 
-
 def print_init_menu():
     press_enter_clear()
     print("Welcome to the universe of Makatsuko, you just woke up in the middle of the forrest with only trees surrounding you.")
@@ -35,7 +34,13 @@ def print_init_menu():
     print("You are trying to remember how you got here, but you don't remember anything before you woke up in this forest")
     press_enter_clear()
     
-
+def print_choice_display():
+    print("Where do you want to go?")
+    print("1. Go North.")
+    print("2. Go East.")
+    print("3. Go South.")
+    print("4. Go West.")
+    print("5. Exit and save.")
 
           
                 

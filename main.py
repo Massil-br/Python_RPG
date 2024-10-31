@@ -1,10 +1,9 @@
 import src.Menu as menu
 import src.Gameloop as gl
 import src.Entity as en
+
 def main():
     print("hello")
-    
-      
     main_menu_choice = True
     valeur = "error"
     create_game = False
@@ -38,20 +37,14 @@ def main():
         except ValueError:
             print("please input a correct number between 1 and 4 :")
             input("press Enter to continue")
-    
     if create_game == True:
         username = gl.create_username()
         if username == None or username == "error":
             return
         player : "en.Human" = gl.create_human(username)
-        humans : list["en.Entity"] = [player]
-        en.save_game(humans, "mysave")
         gl.game_loop(player, gl.Load_or_new.NEW)
-        en.save_game(humans, "mysave")
         player.get_position()
-        
-        
-        
+      
 main()
 
 
