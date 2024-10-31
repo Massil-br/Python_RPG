@@ -1,6 +1,7 @@
 
 import os
 import json
+import random
 from .Item import Item
 from typing import TYPE_CHECKING, List
 from .map import Map
@@ -17,7 +18,7 @@ class Entity : #top Entity  mother class
         self.id = Entity.id
         Entity.id +=1
         self.name = name
-        self.level = 0
+        self.level = 1
         self.max_health = max_health
         self.health = self.max_health
         self.is_alive = True 
@@ -169,23 +170,26 @@ class Human(Entity):
         print(f"XP : {self.xp} / {self.max_xp}")
         print(f"Attack Damage : {self.strength}")
         print(f"Defense : {self.defense}") 
+    
+    def gain_xp(self):
+        bonus = self.level
+        self.xp += (random.randint(2,10) * bonus)
             
 class Monster(Entity):
     def __init__(self, name: str, max_health: int, strength: int, level:int):
         super().__init__(name, max_health, strength)
-        self.level = level
-        self.max_health +=((max_health * Entity.level_ratio)*self.level)
+        
+    def reajust_level(self,player:"Human"):
+        self.level = player.level
+        self.max_health +=((self.max_health * Entity.level_ratio)*self.level)
         self.health = self.max_health
         self.strength +=((self.strength * Entity.level_ratio)*self.level)
-        self.defense += ((self.strength * Entity.level_ratio)*self.level)    
-    
+        self.defense += ((self.strength * Entity.level_ratio)*self.level) 
     
 def save_game(entities_list: List[Entity], save_name: str):
     os.makedirs('saves', exist_ok=True)
     filename = os.path.join('saves', f"{save_name}.json")
-
     with open(filename, 'w') as f:
         # Convert all entities to dictionaries and save them in a list
         json.dump([entity.to_dict() for entity in entities_list if entity is not None], f, indent=4)
-
     print(f"Game saved in {filename}.")

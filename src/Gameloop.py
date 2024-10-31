@@ -1,7 +1,6 @@
 from .Entity import *
 from enum import Enum
 from .Menu import * 
-import random
 class Load_or_new(Enum):
     NEW = 0
     LOAD = 1
@@ -42,6 +41,7 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
     return monsters
             
 def start_combat(player: "Human", monster : "Monster"):
+    monster.reajust_level(player)
     combat = True
     while combat :
         print("\nYou : ")
