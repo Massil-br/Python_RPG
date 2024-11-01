@@ -184,7 +184,6 @@ class Monster(Entity):
         self.max_health +=((self.max_health * Entity.level_ratio)*self.level)
         self.health = self.max_health
         self.strength +=((self.strength * Entity.level_ratio)*self.level)
-        self.defense += ((self.strength * Entity.level_ratio)*self.level) 
     
 def save_game(entities_list: List[Entity], save_name: str):
     os.makedirs('saves', exist_ok=True)

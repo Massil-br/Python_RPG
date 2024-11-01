@@ -5,7 +5,6 @@ class Load_or_new(Enum):
     NEW = 0
     LOAD = 1
 
-
 def game_over():
     print("You are Dead ! ")
     
@@ -26,7 +25,7 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
     boss.pos_y = 10
     monsters.append(boss)
     for i in range(50):
-        monster = create_classic_monster(player, "monster")
+        monster = create_classic_monster(player, name)
         attribute_pos = True
         while attribute_pos:
             x = random.randint(0, 20)  # Adjust the range as needed
@@ -79,6 +78,7 @@ def start_combat(player: "Human", monster : "Monster"):
         monster.present()
         press_enter_clear()
         if not monster.is_alive:
+            player.gain_xp()
             break
         monster.attack(player)
         print("\nYou : ")
@@ -86,8 +86,9 @@ def start_combat(player: "Human", monster : "Monster"):
         print("\nEnemy : ")
         monster.present()
         press_enter_clear()
-        
-        
+        if not player.is_alive : 
+            break
+              
 def create_username() -> str:
     print("Creating New Game ...")
     player = None
@@ -122,7 +123,9 @@ def start_loop(player: "Human", monsters: list["Monster"]):
         for monster in monsters:
             if monster.is_alive and (player.pos_x == monster.pos_x and player.pos_y == monster.pos_y):
                 start_combat(player, monster)  # Initiate combat with the matching monster
-                break 
+                break
+        if not player.is_alive:
+            game_over()  
         print_choice_display()
         choice = input("Enter your choice : ")
         if choice == "1":
@@ -147,6 +150,5 @@ def start_loop(player: "Human", monsters: list["Monster"]):
         else:
             print("\nInvalid choice. Please enter a the number of a valid choice.")
             press_enter_clear()  
-    if not player.is_alive:
-        game_over()  
+     
                   
