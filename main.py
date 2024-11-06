@@ -20,7 +20,6 @@ def main():
                 break
             elif valeur == 2:
                 load_game = True
-                #load_game()
                 main_menu_choice = False
                 break
             elif valeur == 3:
@@ -43,8 +42,11 @@ def main():
             return
         player : "en.Human" = gl.create_human(username)
         gl.game_loop(player, gl.Load_or_new.NEW)
-        player.get_position()
-      
+    elif load_game == True:
+        player = None
+        gl.game_loop(player, gl.Load_or_new.LOAD)
+        
+          
 main()
 
 

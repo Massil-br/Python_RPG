@@ -179,11 +179,15 @@ class Monster(Entity):
     def __init__(self, name: str, max_health: int, strength: int, level:int):
         super().__init__(name, max_health, strength)
         
-    def reajust_level(self,player:"Human"):
+    def reajust_level(self, player: "Human"):
         self.level = player.level
-        self.max_health +=((self.max_health * Entity.level_ratio)*self.level)
-        self.health = self.max_health
-        self.strength +=((self.strength * Entity.level_ratio)*self.level)
+    
+        # Adjust and round max_health
+        self.max_health += round((self.max_health * Entity.level_ratio) * self.level, 2)
+        self.health = self.max_health  # Ensure health matches max_health
+        # Adjust and round strength
+        self.strength += round((self.strength * Entity.level_ratio) * self.level, 2)
+
     
 def save_game(entities_list: List[Entity], save_name: str):
     os.makedirs('saves', exist_ok=True)

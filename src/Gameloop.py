@@ -109,12 +109,47 @@ def create_username() -> str:
         print(f"Your username is {username}")
     return username
 
-def game_loop(player : "Human", load_or_new : "Load_or_new"):
+def game_loop(player: "Human", load_or_new: "Load_or_new"):
     if load_or_new == Load_or_new.NEW:
         print_init_menu()
-    monsters = create_all_monsters(player, "monster")
-    start_loop(player,monsters)    
-
+        monsters = create_all_monsters(player, "monster")
+    
+    elif load_or_new == Load_or_new.LOAD:
+        # List available save files in the 'saves' folder
+        save_folder = 'saves'
+        save_files = [f for f in os.listdir(save_folder) if f.endswith('.json')]
+        
+        if not save_files:
+            print("No save files found.")
+            return
+        
+        print("Available saves:")
+        for i, save_file in enumerate(save_files, start=1):
+            print(f"{i}. {save_file}")
+        
+        # Prompt the player to choose a save file
+        try:
+            choice = int(input("Choose a save file by entering its number: ")) - 1
+            if 0 <= choice < len(save_files):
+                save_name = save_files[choice].replace('.json', '')
+                player, monsters = load_game(save_name)
+                if player is None:
+                    print("Failed to load the selected game.")
+                    return
+            else:
+                print("Invalid choice. Starting a new game instead.")
+                print_init_menu()
+                monsters = create_all_monsters(player, "monster")
+        except ValueError:
+            print("Invalid input. Starting a new game instead.")
+            monsters = create_all_monsters(player, "monster")
+            username = create_username()
+            if username == None or username == "error":
+                return
+            player : "Human" = create_human(username)
+            print_init_menu()
+    start_loop(player, monsters)
+      
 def start_loop(player: "Human", monsters: list["Monster"]):
     game_loop = True
     player.get_position()
@@ -150,5 +185,58 @@ def start_loop(player: "Human", monsters: list["Monster"]):
         else:
             print("\nInvalid choice. Please enter a the number of a valid choice.")
             press_enter_clear()  
-     
+
+def load_game(save_name: str) -> (Human, list[Entity]): # type: ignore
+    filename = os.path.join('saves', f"{save_name}.json")
+    
+    if not os.path.exists(filename):
+        print(f"Save file '{filename}' not found.")
+        return None, []
+    
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    
+    player = None
+    monsters = []
+    
+    for entity_data in data:
+        entity_type = entity_data["type"]
+        
+        if entity_type == "Human" and player is None:
+            player = Human(entity_data["name"], entity_data["max_health"], entity_data["strength"])
+            player.id = entity_data["id"]
+            player.xp = entity_data["xp"]
+            player.level = entity_data["level"]
+            player.pos_x = entity_data["pos_x"]
+            player.pos_y = entity_data["pos_y"]
+            player.health = entity_data["health"]
+            player.is_alive = entity_data["is_alive"]
+            player.defense = entity_data["defense"]
+            if entity_data.get("equipped_weapon"):
+                weapon_data = entity_data["equipped_weapon"]
+                equipped_weapon = Weapon(weapon_data["name"], weapon_data["strength_bonus"])
+                player.equip_weapon(equipped_weapon)
+                player.backpack = [
+                HealthPotion(item["name"], Rarety(item["rarety"])) if item["type"] == "HealthPotion" else
+                StrengthPotion(item["name"], Rarety(item["rarety"])) if item["type"] == "StrengthPotion"else
+                None
+                for item in entity_data["backpack"]
+]
+            player.weapon_backpack = [
+                Weapon(weapon["name"], Weapon_type(weapon["type"]), Rarety(weapon["rarety"]))
+                for weapon in entity_data["weapon_backpack"]
+            ]
+        
+        elif entity_type == "Monster":
+            # Load each Monster and add to the monsters list
+            monster = Monster(entity_data["name"], entity_data["max_health"], entity_data["strength"], entity_data["level"])
+            monster.id = entity_data["id"]
+            monster.health = entity_data["health"]
+            monster.is_alive = entity_data["is_alive"]
+            monster.defense = entity_data["defense"]
+            monster.pos_x = entity_data["pos_x"]
+            monster.pos_y = entity_data["pos_y"]
+            monsters.append(monster)        
+    print("Game loaded successfully.")
+    return player, monsters                         
                   

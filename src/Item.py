@@ -62,5 +62,4 @@ class Weapon(Item):
         super().__init__(name)
         self.type = type
         self.rarety = rarety
-        self.strength_bonus = Weapon.rarety_power_map(self.rarety , 0)
-       
+        self.strength_bonus = Weapon.rarety_power_map.get(self.rarety , 0)
