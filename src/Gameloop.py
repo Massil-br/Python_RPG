@@ -9,7 +9,7 @@ def game_over():
     print("You are Dead ! ")
     
 def create_human(username) -> Human:
-    player1 = Human(username,20,5)
+    player1 = Human(username,50,8)
     return player1
 
 def create_classic_monster(player : "Human", name : str)-> "Monster":
@@ -88,10 +88,36 @@ def start_combat(player: "Human", monster : "Monster"):
         press_enter_clear()
         if not player.is_alive : 
             break
+
+def create_save_name() -> str:
+    save_name = ""
+    choosing_save_name = True
+    save_folder = 'saves'
+    while choosing_save_name:
+        try:
+            print("Enter the name of your save :")
+            save_name = input().strip()
+        
+            os.makedirs('saves', exist_ok=True)
+            filename = os.path.join(save_folder, f"{save_name}.json")
+            if len(save_name) < 3:
+                print("The name of your save musst have at leat 3 characters.")
+                press_enter_clear()
+            elif os.path.exists(filename):
+                print(f"the save name {filename} already exists, please enter another save_name")
+                press_enter_clear()
+            else:
+                print(f"The save name of this game is {save_name}")
+                choosing_save_name = False
+                press_enter_clear()
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+            press_enter_clear()
+    return save_name
+            
               
 def create_username() -> str:
     print("Creating New Game ...")
-    player = None
     username = "error"
     choosing_username = True
     while choosing_username:
@@ -105,15 +131,16 @@ def create_username() -> str:
                 choosing_username = False
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
-            input("Press Enter to continue...")
+            press_enter_clear()
         print(f"Your username is {username}")
     return username
 
 def game_loop(player: "Human", load_or_new: "Load_or_new"):
+    save_name =""
     if load_or_new == Load_or_new.NEW:
+        save_name = create_save_name()
         print_init_menu()
         monsters = create_all_monsters(player, "monster")
-    
     elif load_or_new == Load_or_new.LOAD:
         # List available save files in the 'saves' folder
         save_folder = 'saves'
@@ -148,12 +175,12 @@ def game_loop(player: "Human", load_or_new: "Load_or_new"):
                 return
             player : "Human" = create_human(username)
             print_init_menu()
-    start_loop(player, monsters)
+    start_loop(player, monsters, save_name)
       
-def start_loop(player: "Human", monsters: list["Monster"]):
+def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
     game_loop = True
-    player.get_position()
     while game_loop and player.is_alive:
+        save_game_File(player, monsters, save_name)  
         press_enter_clear()
         for monster in monsters:
             if monster.is_alive and (player.pos_x == monster.pos_x and player.pos_y == monster.pos_y):
@@ -176,11 +203,7 @@ def start_loop(player: "Human", monsters: list["Monster"]):
             print("You head West")
             player.go_west()
         elif choice == "5":
-            save =[player]
-            for monster in monsters:
-                if monster.is_alive:
-                    save.append(monster)
-            save_game(save, "mysave")    
+            save_game_File(player, monsters, save_name)   
             game_loop = False
         else:
             print("\nInvalid choice. Please enter a the number of a valid choice.")
@@ -239,4 +262,10 @@ def load_game(save_name: str) -> (Human, list[Entity]): # type: ignore
             monsters.append(monster)        
     print("Game loaded successfully.")
     return player, monsters                         
-                  
+
+def save_game_File(player:"Human", monsters: list["Monster"], save_name: str):
+    save =[player]
+    for monster in monsters:
+        if monster.is_alive:
+            save.append(monster)
+    save_game(save, save_name)

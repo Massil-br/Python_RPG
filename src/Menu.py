@@ -3,7 +3,7 @@ def clear_console():
     os.system('cls')
 
 def press_enter():
-    input("Press ENTER to continue")
+    input("Press ENTER to continue...")
 
 def press_enter_clear():
     press_enter()
@@ -21,9 +21,9 @@ def print_init_menu():
     press_enter_clear()
     print("Welcome to the universe of Makatsuko, you just woke up in the middle of the forrest with only trees surrounding you.")
     press_enter_clear()
-    print("You are looking arround you, to search if there is something, but you see no lights")
+    print("You are looking arround you, to search if there is something, but you see no lights.")
     press_enter_clear()
-    print("Seems like you're in a deep point of the forest")
+    print("Seems like you're in a deep point of the forest.")
     press_enter_clear()
     print("You hear sounds arround you, but clearly not human, is there monsters in this forest?")
     press_enter_clear()
@@ -31,7 +31,7 @@ def print_init_menu():
     press_enter_clear()
     print("You look at your feet, and you find a sword, was that sword here all that time? Is it your sword?")
     press_enter_clear()
-    print("You are trying to remember how you got here, but you don't remember anything before you woke up in this forest")
+    print("You are trying to remember how you got here, but you don't remember anything before you woke up in this forest.")
     press_enter_clear()
     
 def print_choice_display():
@@ -42,6 +42,18 @@ def print_choice_display():
     print("4. Go West.")
     print("5. Exit and save.")
 
-          
-                
+def print_about_msg():
+    clear_console()
+    print("This game is made by MASSIL BRAIK, a RPG in console where you can move in wich direction you want.")
+    press_enter_clear()
+    print("The objective of the game is to kill the boss in the far South and East of the forest.")
+    press_enter_clear()
+    print("To make your choices and move your player, you have numbers before every choice proposed.")
+    press_enter_clear()
+    print("You need to write the number of the choice you want, and press ENTER.")
+    press_enter_clear()
+    print("The map is  10 x 10 , there are 50 monsters in the beginning and the boss.")
+    press_enter_clear()
+    print("The monsters will always have the same level as the player, with random stats, so they will not be too strong or too weak.")
+         
          
