@@ -211,59 +211,107 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
             print("\nInvalid choice. Please enter a the number of a valid choice.")
             press_enter_clear()  
 
-def load_game(save_name: str) -> (Human, list[Entity]): # type: ignore
+def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
+    
     filename = os.path.join('saves', f"{save_name}.json")
     
     if not os.path.exists(filename):
         print(f"Save file '{filename}' not found.")
         return None, []
-    
-    with open(filename, 'r') as f:
-        data = json.load(f)
+
+    try:
+        with open(filename, 'r') as f:
+            content = f.read().strip()
+            if not content:  # Check if the file is empty
+                print("Save file is empty.")
+                return None, []
+            data = json.loads(content)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return None, []
+    except IOError as e:
+        print(f"Error reading save file: {e}")
+        return None, []   
     
     player = None
     monsters = []
+
+    if not data:  # Check if the file is empty
+        print("Save file is empty or corrupted.")
+        return None, []
     
     for entity_data in data:
-        entity_type = entity_data["type"]
-        
+        entity_type = entity_data.get("type", "")
+
         if entity_type == "Human" and player is None:
-            player = Human(entity_data["name"], entity_data["max_health"], entity_data["strength"])
-            player.id = entity_data["id"]
-            player.xp = entity_data["xp"]
-            player.level = entity_data["level"]
-            player.pos_x = entity_data["pos_x"]
-            player.pos_y = entity_data["pos_y"]
-            player.health = entity_data["health"]
-            player.is_alive = entity_data["is_alive"]
-            player.defense = entity_data["defense"]
-            if entity_data.get("equipped_weapon"):
+            # Initialize Human player with base attributes
+            player = Human(
+                entity_data.get("name"),
+                entity_data.get("max_health"),
+                entity_data.get("strength")
+            )
+            player.id = entity_data.get("id")
+            player.xp = entity_data.get("xp")
+            player.level = entity_data.get("level")
+            player.pos_x = entity_data.get("pos_x")
+            player.pos_y = entity_data.get("pos_y")
+            player.health = entity_data.get("health")
+            player.is_alive = entity_data.get("is_alive")
+            player.defense = entity_data.get("defense")
+
+            # Load equipped weapon if available
+            if "equipped_weapon" in entity_data:
                 weapon_data = entity_data["equipped_weapon"]
-                equipped_weapon = Weapon(weapon_data["name"], weapon_data["strength_bonus"])
-                player.equip_weapon(equipped_weapon)
+                equipped_weapon = Weapon(
+                    weapon_data["name"],
+                    Weapon_type[weapon_data["weapon_type"].upper()],  # Convert string to Enum
+                    Rarety[weapon_data["rarety"].upper()]  # Convert string to Enum
+                )
+
+            # Load backpack items
+            if "backpack" in entity_data:
                 player.backpack = [
-                HealthPotion(item["name"], Rarety(item["rarety"])) if item["type"] == "HealthPotion" else
-                StrengthPotion(item["name"], Rarety(item["rarety"])) if item["type"] == "StrengthPotion"else
-                None
-                for item in entity_data["backpack"]
-]
-            player.weapon_backpack = [
-                Weapon(weapon["name"], Weapon_type(weapon["type"]), Rarety(weapon["rarety"]))
-                for weapon in entity_data["weapon_backpack"]
-            ]
-        
+                    HealthPotion(item["name"], Rarety[item["rarety"].upper()]) if item["type"] == "HealthPotion" else
+                    StrengthPotion(item["name"], Rarety[item["rarety"].upper()]) if item["type"] == "StrengthPotion" else
+                    None
+                    for item in entity_data["backpack"]
+                ]
+            else:
+                print("Warning: Backpack data missing for player.")
+
+            # Load weapon backpack items
+            if "weapon_backpack" in entity_data:
+                player.weapon_backpack = [
+                    Weapon(
+                        weapon["name"],
+                        Weapon_type[weapon["weapon_type"].upper()],  # Convert string to Enum
+                        Rarety[weapon["rarety"].upper()]  # Convert string to Enum
+                    )
+                    for weapon in entity_data["weapon_backpack"]
+                ]
+            else:
+                print("Warning: Weapon backpack data missing for player.")
+
         elif entity_type == "Monster":
-            # Load each Monster and add to the monsters list
-            monster = Monster(entity_data["name"], entity_data["max_health"], entity_data["strength"], entity_data["level"])
-            monster.id = entity_data["id"]
-            monster.health = entity_data["health"]
-            monster.is_alive = entity_data["is_alive"]
-            monster.defense = entity_data["defense"]
-            monster.pos_x = entity_data["pos_x"]
-            monster.pos_y = entity_data["pos_y"]
-            monsters.append(monster)        
+            # Initialize each Monster and add to the monsters list
+            monster = Monster(
+                entity_data.get("name"),
+                entity_data.get("max_health"),
+                entity_data.get("strength"),
+                entity_data.get("level")
+            )
+            monster.id = entity_data.get("id")
+            monster.health = entity_data.get("health", monster.max_health)
+            monster.is_alive = entity_data.get("is_alive", True)
+            monster.defense = entity_data.get("defense")
+            monster.pos_x = entity_data.get("pos_x")
+            monster.pos_y = entity_data.get("pos_y")
+            monsters.append(monster)
+    print(player.name)
     print("Game loaded successfully.")
-    return player, monsters                         
+    return player, monsters
+
+                 
 
 def save_game_File(player:"Human", monsters: list["Monster"], save_name: str):
     save =[player]

@@ -45,7 +45,8 @@ class Entity : #top Entity  mother class
     def attack(self, target:"Entity"):
         if self.is_alive and target.is_alive:
             target.health -= (self.strength - target.defense)
-            target.update_health()   
+            target.update_health()
+            round(target.health, 2)
                 
     def to_dict(self):
         """Convert the entity to a dictionary."""
@@ -122,17 +123,17 @@ class Human(Entity):
         if self.xp >= self.max_xp:
             self.level +=1
             self.xp -= self.max_xp
-            self.max_xp * Entity.level_ratio
-            self.defense * Entity.level_ratio
+            round(self.max_xp * Entity.level_ratio,0)
+            self.defense * (1 + (Entity.level_ratio/10))
     
     def to_dict(self):
         data = super().to_dict()
         data.update({
             "xp": self.xp,
-            "backpack": [item.to_dict() for item in self.backpack],
+            "backpack": [item.to_dict() for item in self.backpack if item is not None],
             "backpack_limit": self.backpack_limit,
             "equipped_weapon": self.equipped_weapon.to_dict() if self.equipped_weapon else None,
-            "weapon_backpack":[weapon.to_dict() for weapon in self.weapon_backpack],
+            "weapon_backpack": [weapon.to_dict() for weapon in self.weapon_backpack if weapon is not None],
             "weapon_backpack_limit": self.weapon_backpack_limit
         })
         return data
@@ -182,10 +183,9 @@ class Monster(Entity):
         self.level = player.level
     
         # Adjust and round max_health
-        self.max_health += round((self.max_health * Entity.level_ratio) * self.level, 2)
-        self.health = self.max_health  # Ensure health matches max_health
-        # Adjust and round strength
-        self.strength += round((self.strength * Entity.level_ratio) * self.level, 2)
+        self.max_health = round((self.max_health * Entity.level_ratio) * self.level, 2)
+        self.health = round((self.health * Entity.level_ratio) * self.level, 2) # Ensure health matches max_health
+        self.strength = round((self.strength * Entity.level_ratio) * self.level, 2)
 
     
 def save_game(entities_list: List[Entity], save_name: str):

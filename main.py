@@ -12,7 +12,7 @@ def main():
         load_game = False
         main_menu_choice = True
         while main_menu_choice:
-            menu.clear_console()
+            #menu.clear_console()
             menu.print_main_menu()
             try:
                 valeur = int(input())
