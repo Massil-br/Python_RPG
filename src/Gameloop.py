@@ -21,7 +21,7 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
     monsters: list["Monster"] = []
     forbidden_positions = {(5, 5), (10, 10)}  # Add any additional forbidden positions here
     used_positions = set()  # Use a set for O(1) average time complexity for lookups
-    boss = Monster("Boss", 50,15,25)
+    boss = Monster("Boss", 100,15,25)
     boss.pos_x = 10
     boss.pos_y = 10
     monsters.append(boss)
@@ -29,8 +29,8 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
         monster = create_classic_monster(player, name)
         attribute_pos = True
         while attribute_pos:
-            x = random.randint(0, 20)  # Adjust the range as needed
-            y = random.randint(0, 20)  # Adjust the range as needed
+            x = random.randint(0, 10)  # Adjust the range as needed
+            y = random.randint(0, 10)  # Adjust the range as needed
             position = (x, y)
             if position not in forbidden_positions and position not in used_positions:
                 used_positions.add(position)  # Mark the position as used
@@ -80,6 +80,10 @@ def start_combat(player: "Human", monster : "Monster"):
         press_enter_clear()
         if not monster.is_alive:
             player.gain_xp()
+            give_drop(player)
+            if monster.name == "Boss":
+                print("Boss defeated")
+                press_enter_clear()
             break
         monster.attack(player)
         print("\nYou : ")
@@ -188,6 +192,12 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
             if monster.is_alive and (player.pos_x == monster.pos_x and player.pos_y == monster.pos_y):
                 start_combat(player, monster)  # Initiate combat with the matching monster
                 break
+            if monster.name =="Boss" and not monster.is_alive:
+                print("You have defeated the boss, you can now recover your memory and return to your home.")
+                print("Congratulations, you have finished the game")
+                game_loop = False
+                press_enter_clear()
+                return
         if not player.is_alive:
             game_over()  
         print_choice_display()
