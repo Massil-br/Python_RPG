@@ -19,7 +19,7 @@ def create_classic_monster(player : "Human", name : str)-> "Monster":
 
 def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
     monsters: list["Monster"] = []
-    forbidden_positions = {(5.5, 10), (10, 10)}  # Add any additional forbidden positions here
+    forbidden_positions = {(5, 5), (10, 10)}  # Add any additional forbidden positions here
     used_positions = set()  # Use a set for O(1) average time complexity for lookups
     boss = Monster("Boss", 50,15,25)
     boss.pos_x = 10
@@ -262,20 +262,24 @@ def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
             # Load equipped weapon if available
             if "equipped_weapon" in entity_data:
                 weapon_data = entity_data["equipped_weapon"]
-                equipped_weapon = Weapon(
+                player.equipped_weapon = Weapon(
                     weapon_data["name"],
                     Weapon_type[weapon_data["weapon_type"].upper()],  # Convert string to Enum
                     Rarety[weapon_data["rarety"].upper()]  # Convert string to Enum
                 )
+                player.equipped_weapon.id = weapon_data["id"]
 
             # Load backpack items
             if "backpack" in entity_data:
                 player.backpack = [
-                    HealthPotion(item["name"], Rarety[item["rarety"].upper()]) if item["type"] == "HealthPotion" else
-                    StrengthPotion(item["name"], Rarety[item["rarety"].upper()]) if item["type"] == "StrengthPotion" else
+                    HealthPotion(item["name"], Rarety[item["rarety"].upper()], item["id"]) if item["type"] == "HealthPotion" else
+                    StrengthPotion(item["name"], Rarety[item["rarety"].upper()], item["id"]) if item["type"] == "StrengthPotion" else
                     None
                     for item in entity_data["backpack"]
                 ]
+                for item in entity_data["backpack"]:
+                    if Item.id < item["id"]:
+                        Item.id = item["id"]
             else:
                 print("Warning: Backpack data missing for player.")
 
@@ -285,10 +289,16 @@ def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
                     Weapon(
                         weapon["name"],
                         Weapon_type[weapon["weapon_type"].upper()],  # Convert string to Enum
-                        Rarety[weapon["rarety"].upper()]  # Convert string to Enum
+                        Rarety[weapon["rarety"].upper()],# Convert string to Enum
+                        weapon["id"]
                     )
-                    for weapon in entity_data["weapon_backpack"]
+                    for weapon in entity_data["weapon_backpack"]  
                 ]
+                for weapon in entity_data["weapon_backpack"]:
+                    if Item.id < weapon["id"]:
+                        Item.id = weapon["id"] 
+                  
+                
             else:
                 print("Warning: Weapon backpack data missing for player.")
 

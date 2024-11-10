@@ -2,7 +2,7 @@
 import os
 import json
 import random
-from .Item import Item
+from .Item import *
 from typing import TYPE_CHECKING, List
 from .map import Map
 if TYPE_CHECKING:
@@ -86,18 +86,19 @@ class Human(Entity):
         print(f"The {weapon.type} {weapon.name} is successfully equipped.")
     
     def add_to_backpack(self, item):
-        if isinstance(item, Item):  # Checks if item is a general Item
-            if len(self.backpack) < self.backpack_limit:
-                self.backpack.append(item)
-                print(f"{item.name} added to backpack.")
-            else:
-                print("Backpack is already full.")
-        elif isinstance(item, Weapon):  # Checks if item is specifically a Weapon
+        
+        if isinstance(item, Weapon):  # Checks if item is specifically a Weapon
             if len(self.weapon_backpack) < self.weapon_backpack_limit:
                 self.weapon_backpack.append(item)
                 print(f"{item.name} added to weapon backpack.")
             else:
                 print("Weapon backpack is already full.")
+        elif isinstance(item, Potion):  # Checks if item is a general Item
+            if len(self.backpack) < self.backpack_limit:
+                self.backpack.append(item)
+                print(f"{item.name} added to backpack.")
+            else:
+                print("Backpack is already full.")
         else:
             print("Item type not recognized.")
 

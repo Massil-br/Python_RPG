@@ -18,9 +18,12 @@ class Weapon_type(Enum):
 
 class Item:
     id = 0
-    def __init__(self, name: str):
-        self.id = Item.id
-        Item.id += 1
+    def __init__(self, name: str, id = None ):
+        if id is not None:
+            self.id = id
+        else:
+            self.id = Item.id
+            Item.id += 1
         self.name = name
         
     def use(self, entity: "Entity"):
@@ -41,8 +44,11 @@ class Potion(Item):
         Rarety.DIAMOND: 50
     }
     
-    def __init__(self, name: str, rarety: Rarety):
-        super().__init__(name)
+    def __init__(self, name: str, rarety: Rarety,id=None):
+        if id == None:
+            super().__init__(name)
+        else:
+            super().__init__(name, id)
         self.power = Potion.rarety_power_map.get(rarety, 0)
     
     def use(self, entity: "Entity"):
@@ -81,8 +87,11 @@ class Weapon(Item):
         Rarety.DIAMOND: 40
     }
     
-    def __init__(self, name: str, type: Weapon_type, rarety: Rarety):
-        super().__init__(name)
+    def __init__(self, name: str, type: Weapon_type, rarety: Rarety, id=None ):
+        if id == None:
+            super().__init__(name)
+        else:
+            super().__init__(name, id)
         self.type = type
         self.rarety = rarety
         self.strength_bonus = Weapon.rarety_power_map.get(self.rarety, 0)
