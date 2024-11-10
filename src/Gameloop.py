@@ -1,6 +1,7 @@
 from .Entity import *
 from enum import Enum
-from .Menu import * 
+from .Menu import *
+from .Give import *
 class Load_or_new(Enum):
     NEW = 0
     LOAD = 1
@@ -132,7 +133,7 @@ def create_username() -> str:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
             press_enter_clear()
-        print(f"Your username is {username}")
+    print(f"Your username is {username}")
     return username
 
 def game_loop(player: "Human", load_or_new: "Load_or_new"):
@@ -140,6 +141,7 @@ def game_loop(player: "Human", load_or_new: "Load_or_new"):
     if load_or_new == Load_or_new.NEW:
         save_name = create_save_name()
         print_init_menu()
+        give_start_sword(player)
         monsters = create_all_monsters(player, "monster")
     elif load_or_new == Load_or_new.LOAD:
         # List available save files in the 'saves' folder

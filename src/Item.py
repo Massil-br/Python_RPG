@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING
 from enum import Enum
+
 if TYPE_CHECKING:
     from .Entity import Entity
-      
+
 class Rarety(Enum):
     IRON = "iron"
     BRONZE = "bronze"
@@ -15,7 +16,7 @@ class Weapon_type(Enum):
     SWORD = "sword"
     BOW = "bow"
 
-class Item: #top item  mother class
+class Item:
     id = 0
     def __init__(self, name: str):
         self.id = Item.id
@@ -24,6 +25,12 @@ class Item: #top item  mother class
         
     def use(self, entity: "Entity"):
         pass
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name
+        }
 
 class Potion(Item):
     rarety_power_map = {
@@ -44,11 +51,27 @@ class Potion(Item):
 class HealthPotion(Potion):   
     def use(self, entity: "Entity"):
         entity.health = min(entity.health + self.power, entity.max_health)
+    
+    def to_dict(self):
+        data = super().to_dict()
+        data.update({
+            "type": "HealthPotion",
+            "power": self.power
+        })
+        return data
 
 class StrengthPotion(Potion):
-    def use(self, entity:"Entity"):
+    def use(self, entity: "Entity"):
         entity.strength += self.power
-        
+    
+    def to_dict(self):
+        data = super().to_dict()
+        data.update({
+            "type": "StrengthPotion",
+            "power": self.power
+        })
+        return data
+
 class Weapon(Item):
     rarety_power_map = {
         Rarety.IRON: 2,
@@ -58,8 +81,18 @@ class Weapon(Item):
         Rarety.DIAMOND: 40
     }
     
-    def __init__(self, name: str , type : Weapon_type  , rarety : Rarety ):
+    def __init__(self, name: str, type: Weapon_type, rarety: Rarety):
         super().__init__(name)
         self.type = type
         self.rarety = rarety
-        self.strength_bonus = Weapon.rarety_power_map.get(self.rarety , 0)
+        self.strength_bonus = Weapon.rarety_power_map.get(self.rarety, 0)
+
+    def to_dict(self):
+        data = super().to_dict()
+        data.update({
+            "type": "Weapon",
+            "weapon_type": self.type.name,
+            "rarety": self.rarety.name,
+            "strength_bonus": self.strength_bonus
+        })
+        return data

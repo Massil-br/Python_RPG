@@ -77,15 +77,21 @@ class Human(Entity):
         self.pos_x = 5
         self.pos_y = 5
     
+    def equip_weapon(self, weapon: "Weapon"):
+        if self.equipped_weapon is not None:
+            self.strength -= self.equipped_weapon.strength_bonus  # Adjust strength
+        self.equipped_weapon = weapon
+        self.strength += weapon.strength_bonus
+        print(f"The {weapon.type} {weapon.name} is successfully equipped.")
     
-    def add_to_backpack(self, item: "Item"):
-        if isinstance(item, Item):  # Use Item directly, not as a string
+    def add_to_backpack(self, item):
+        if isinstance(item, Item):  # Checks if item is a general Item
             if len(self.backpack) < self.backpack_limit:
                 self.backpack.append(item)
                 print(f"{item.name} added to backpack.")
             else:
                 print("Backpack is already full.")
-        elif isinstance(item, Weapon):  # If it's a weapon
+        elif isinstance(item, Weapon):  # Checks if item is specifically a Weapon
             if len(self.weapon_backpack) < self.weapon_backpack_limit:
                 self.weapon_backpack.append(item)
                 print(f"{item.name} added to weapon backpack.")
@@ -93,15 +99,8 @@ class Human(Entity):
                 print("Weapon backpack is already full.")
         else:
             print("Item type not recognized.")
-        if self.equipped_weapon is None and isinstance(item, Weapon):
-            self.equip_weapon(item)
 
-    def equip_weapon(self, weapon: "Weapon"):
-        if self.equipped_weapon is not None:
-            self.strength -= self.equipped_weapon.strength_bonus
-        self.equipped_weapon = weapon
-        self.strength += weapon.strength_bonus
-        print(f"The {weapon.type} {weapon.name} is successfully equipped.")
+    
 
     def use_backpack_item(self, index: int):
         if 0 <= index < len(self.backpack) and self.is_alive:
@@ -133,7 +132,7 @@ class Human(Entity):
             "backpack": [item.to_dict() for item in self.backpack],
             "backpack_limit": self.backpack_limit,
             "equipped_weapon": self.equipped_weapon.to_dict() if self.equipped_weapon else None,
-            "weapon_backpack":[weapon.todict() for weapon in self.weapon_backpack],
+            "weapon_backpack":[weapon.to_dict() for weapon in self.weapon_backpack],
             "weapon_backpack_limit": self.weapon_backpack_limit
         })
         return data
