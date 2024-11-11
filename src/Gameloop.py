@@ -241,7 +241,7 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
         press_enter_clear()
 
 
-def load_game(save_name: str) -> (Human, list[Entity]):
+def load_game(save_name: str) -> (Human, list[Entity]): # type: ignore
     filename = os.path.join('saves', f"{save_name}.json")
     
     if not os.path.exists(filename):
