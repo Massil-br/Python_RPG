@@ -80,7 +80,8 @@ class Human(Entity):
     
     def equip_weapon(self, weapon: "Weapon"):
         if self.equipped_weapon is not None:
-            self.strength -= self.equipped_weapon.strength_bonus  # Adjust strength
+            self.strength -= self.equipped_weapon.strength_bonus # Adjust strength
+            self.add_to_backpack(self.equipped_weapon)
         self.equipped_weapon = weapon
         self.strength += weapon.strength_bonus
         print(f"The {weapon.type} {weapon.name} is successfully equipped.")
@@ -119,6 +120,61 @@ class Human(Entity):
             self.weapon_backpack.pop(index)  # Optionally remove the weapon from the backpack
         else:
             print("Invalid index for weapon backpack.")
+    
+    def choose_inventory_and_use_item(self):
+        choosing_backpack = True
+        choosing_item = False
+        while choosing_backpack :
+            choice = input("Choose inventory type (1 for backpack, 2 for weapon backpack): ")
+            
+            if choice == "1":
+                choosing_backpack = False
+                if not self.backpack:
+                    print("Backpack is empty.")
+                    return
+                
+                for i, item in enumerate(self.backpack):
+                    print(f"{i}: {item.name}")
+                
+                while choosing_item:
+                    try:
+                        index = int(input("Enter the index of the item to use: "))
+                        if 0 <= index < len(self.backpack):
+                            self.use_backpack_item(index)
+                            choosing_item = False
+                            
+                            return  
+                        else:
+                            print("Index out of range. Please try again.")
+                    except ValueError:
+                        print("Invalid input. Please enter a valid index number.")
+            
+            elif choice == "2":
+                choosing_backpack = False
+                if not self.weapon_backpack:
+                    print("Weapon backpack is empty.")
+                    return
+                
+                for i, weapon in enumerate(self.weapon_backpack):
+                    print(f"{i}: {weapon.name}")
+                choosing_item = True
+                
+                while choosing_item:
+                    try:
+                        index = int(input("Enter the index of the weapon to equip: "))
+                        if 0 <= index < len(self.weapon_backpack):
+                            self.use_weapon_backpack_item(index)
+                            choosing_item = False
+                            return  # Exit after successfully equipping a weapon
+                        else:
+                            print("Index out of range. Please try again.")
+                    except ValueError:
+                        print("Invalid input. Please enter a valid index number.")
+
+                
+            else:
+                print("Invalid choice. Please choose 1 or 2.")
+
 
     def check_level_up(self):
         if self.xp >= self.max_xp:
@@ -131,6 +187,7 @@ class Human(Entity):
         data = super().to_dict()
         data.update({
             "xp": self.xp,
+            "max_xp": self.max_xp,
             "backpack": [item.to_dict() for item in self.backpack if item is not None],
             "backpack_limit": self.backpack_limit,
             "equipped_weapon": self.equipped_weapon.to_dict() if self.equipped_weapon else None,

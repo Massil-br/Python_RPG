@@ -40,59 +40,72 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
         monsters.append(monster)
     return monsters
             
-def start_combat(player: "Human", monster : "Monster"):
+def start_combat(player: "Human", monster: "Monster"):
     monster.reajust_level(player)
     combat = True
-    while combat :
-        print("\nYou : ")
+    
+    while combat:
+        # Player's turn
+        print("\nYou:")
         player.present()
-        print("\nEnemy : ")
+        print("\nEnemy:")
         monster.present()
-        print("\nWhat do you wan to do? ")
+        
+        print("\nWhat do you want to do?")
         print("1. Attack.")
         print("2. Use an Item")
         print("3. Run away.")
-        choice = input("Enter your choice :")
+        
+        choice = input("Enter your choice: ")
         if choice == "1":
             player.attack(monster)
-            print(f"You are attacking {monster.name}")       
-        elif choice == "2" :
-            item_choosing = True
-            while item_choosing:
-                if len(player.backpack <= 0):
-                    item_choosing = False
-                    print("you don't have items in your backpack")
-                else :
-                    for i , item in player.backpack:
-                        print(f"{i} , {item}")
-                    input("choose the number of the item you want")        
+            print(f"You are attacking {monster.name}")
+        
+        elif choice == "2":
+            if len(player.backpack) <= 0:
+                print("You don't have items in your backpack.")
+            else:
+                player.choose_inventory_and_use_item()
+        
         elif choice == "3":
-            print("You are running away !")
+            print("You are running away!")
             combat = False
             break
+        
         else:
-            print("Enter a correct choice :")
+            print("Enter a correct choice:")
             press_enter_clear()
-        print("\nYou : ")
-        player.present()
-        print("\nEnemy : ")
-        monster.present()
+            continue  # Retry the player's turn if input is invalid
+        
         press_enter_clear()
+        
+        # Check if the monster was defeated
         if not monster.is_alive:
+            print(f"You have defeated {monster.name}!")
             player.gain_xp()
             give_drop(player)
             if monster.name == "Boss":
-                print("Boss defeated")
-                press_enter_clear()
+                print("Boss defeated!")
+            combat = False  # End combat as the monster is defeated
+            press_enter_clear()
             break
+        
+        # Monster's turn if combat is still ongoing
         monster.attack(player)
-        print("\nYou : ")
+        print("\nYou:")
         player.present()
-        print("\nEnemy : ")
+        print("\nEnemy:")
         monster.present()
+        
         press_enter_clear()
-        if not player.is_alive : 
+        
+        # Check if the player was defeated
+        if not player.is_alive:
+            print("You have been defeated by the monster...")
+            combat = False  # End combat as the player is defeated
             break
+
+            
 
 def create_save_name() -> str:
     save_name = ""
@@ -186,8 +199,7 @@ def game_loop(player: "Human", load_or_new: "Load_or_new"):
 def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
     game_loop = True
     while game_loop and player.is_alive:
-        save_game_File(player, monsters, save_name)  
-        press_enter_clear()
+        clear_console()
         for monster in monsters:
             if monster.is_alive and (player.pos_x == monster.pos_x and player.pos_y == monster.pos_y):
                 start_combat(player, monster)  # Initiate combat with the matching monster
@@ -198,8 +210,10 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
                 game_loop = False
                 press_enter_clear()
                 return
+        
         if not player.is_alive:
             game_over()  
+        clear_console()
         print_choice_display()
         choice = input("Enter your choice : ")
         if choice == "1":
@@ -217,12 +231,17 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
         elif choice == "5":
             save_game_File(player, monsters, save_name)   
             game_loop = False
+        elif choice == "6":
+            print("You're oppenning you inventory")
+            player.choose_inventory_and_use_item()
         else:
             print("\nInvalid choice. Please enter a the number of a valid choice.")
-            press_enter_clear()  
+            press_enter_clear() 
+        save_game_File(player, monsters, save_name)  
+        press_enter_clear()
 
-def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
-    
+
+def load_game(save_name: str) -> (Human, list[Entity]):
     filename = os.path.join('saves', f"{save_name}.json")
     
     if not os.path.exists(filename):
@@ -232,7 +251,7 @@ def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
     try:
         with open(filename, 'r') as f:
             content = f.read().strip()
-            if not content:  # Check if the file is empty
+            if not content:
                 print("Save file is empty.")
                 return None, []
             data = json.loads(content)
@@ -241,12 +260,12 @@ def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
         return None, []
     except IOError as e:
         print(f"Error reading save file: {e}")
-        return None, []   
+        return None, []
     
     player = None
     monsters = []
 
-    if not data:  # Check if the file is empty
+    if not data:
         print("Save file is empty or corrupted.")
         return None, []
     
@@ -262,6 +281,7 @@ def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
             )
             player.id = entity_data.get("id")
             player.xp = entity_data.get("xp")
+            player.max_xp = entity_data.get("max_xp")
             player.level = entity_data.get("level")
             player.pos_x = entity_data.get("pos_x")
             player.pos_y = entity_data.get("pos_y")
@@ -272,43 +292,59 @@ def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
             # Load equipped weapon if available
             if "equipped_weapon" in entity_data:
                 weapon_data = entity_data["equipped_weapon"]
-                player.equipped_weapon = Weapon(
-                    weapon_data["name"],
-                    Weapon_type[weapon_data["weapon_type"].upper()],  # Convert string to Enum
-                    Rarety[weapon_data["rarety"].upper()]  # Convert string to Enum
-                )
-                player.equipped_weapon.id = weapon_data["id"]
+                try:
+                    weapon_type = Weapon_type[weapon_data["weapon_type"].upper()]
+                    rarety = Rarety[weapon_data["rarety"].upper()]
+                    player.equipped_weapon = Weapon(
+                        weapon_data["name"],
+                        weapon_type,
+                        rarety
+                    )
+                    player.equipped_weapon.id = weapon_data["id"]
+                except KeyError as e:
+                    print(f"Error loading equipped weapon: {e}")
 
             # Load backpack items
             if "backpack" in entity_data:
-                player.backpack = [
-                    HealthPotion(item["name"], Rarety[item["rarety"].upper()], item["id"]) if item["type"] == "HealthPotion" else
-                    StrengthPotion(item["name"], Rarety[item["rarety"].upper()], item["id"]) if item["type"] == "StrengthPotion" else
-                    None
-                    for item in entity_data["backpack"]
-                ]
+                player.backpack = []
                 for item in entity_data["backpack"]:
-                    if Item.id < item["id"]:
-                        Item.id = item["id"]
+                    try:
+                        rarety = Rarety[item["rarety"].upper()]
+                        if item["type"] == "HealthPotion":
+                            loaded_item = HealthPotion(item["name"], rarety, item["id"])
+                        elif item["type"] == "StrengthPotion":
+                            loaded_item = StrengthPotion(item["name"], rarety, item["id"])
+                        else:
+                            loaded_item = None
+                            print(f"Unknown item type '{item['type']}' in backpack.")
+                        
+                        if loaded_item:
+                            player.add_to_backpack(loaded_item)
+                        if Item.id < item["id"]:
+                            Item.id = item["id"]
+                    except KeyError as e:
+                        print(f"Error loading backpack item: {e}")
             else:
                 print("Warning: Backpack data missing for player.")
 
             # Load weapon backpack items
             if "weapon_backpack" in entity_data:
-                player.weapon_backpack = [
-                    Weapon(
-                        weapon["name"],
-                        Weapon_type[weapon["weapon_type"].upper()],  # Convert string to Enum
-                        Rarety[weapon["rarety"].upper()],# Convert string to Enum
-                        weapon["id"]
-                    )
-                    for weapon in entity_data["weapon_backpack"]  
-                ]
+                player.weapon_backpack = []
                 for weapon in entity_data["weapon_backpack"]:
-                    if Item.id < weapon["id"]:
-                        Item.id = weapon["id"] 
-                  
-                
+                    try:
+                        weapon_type = Weapon_type[weapon["weapon_type"].upper()]
+                        rarety = Rarety[weapon["rarety"].upper()]
+                        loaded_weapon = Weapon(
+                            weapon["name"],
+                            weapon_type,
+                            rarety,
+                            weapon["id"]
+                        )
+                        player.add_to_backpack(loaded_weapon)
+                        if Item.id < weapon["id"]:
+                            Item.id = weapon["id"]
+                    except KeyError as e:
+                        print(f"Error loading weapon in weapon backpack: {e}")
             else:
                 print("Warning: Weapon backpack data missing for player.")
 
@@ -327,9 +363,11 @@ def load_game(save_name: str) -> (Human, list[Entity]):  # type: ignore
             monster.pos_x = entity_data.get("pos_x")
             monster.pos_y = entity_data.get("pos_y")
             monsters.append(monster)
-    print(player.name)
+
+    print(f"{player.name} loaded successfully.")
     print("Game loaded successfully.")
     return player, monsters
+
 
                  
 
@@ -339,3 +377,5 @@ def save_game_File(player:"Human", monsters: list["Monster"], save_name: str):
         if monster.is_alive:
             save.append(monster)
     save_game(save, save_name)
+
+
