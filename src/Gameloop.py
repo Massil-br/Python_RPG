@@ -40,7 +40,7 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
         monsters.append(monster)
     return monsters
 
-def add_monsters(player:"Human", monsters: list["Monster"]):
+def add_monsters(player:"Human", monsters: list["Monster"])-> list["Monster"]:
     
     forbidden_positions = {(player.pos_x, player.pos_y), (10,10)}
     used_positions = set()
@@ -226,9 +226,12 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
     game_loop = True
     while game_loop and player.is_alive:
         clear_console()
+        monster_count = 0
         for monster in monsters:
+            monster_count +=1
             if monster.is_alive and (player.pos_x == monster.pos_x and player.pos_y == monster.pos_y):
                 start_combat(player, monster)  # Initiate combat with the matching monster
+                save_game_File(player, monsters, save_name) 
                 break
             if monster.name =="Boss" and not monster.is_alive:
                 print("You have defeated the boss, you can now recover your memory and return to your home.")
@@ -236,6 +239,9 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
                 game_loop = False
                 press_enter_clear()
                 return
+        if monster_count <= 20 :
+           monsters = add_monsters(player, monsters)
+            
         
         if not player.is_alive:
             game_over()  
@@ -254,12 +260,14 @@ def start_loop(player: "Human", monsters: list["Monster"], save_name: str):
         elif choice == "4":
             print("You head West")
             player.go_west()
-        elif choice == "5":
-            save_game_File(player, monsters, save_name)   
+        elif choice == "5": 
             game_loop = False
         elif choice == "6":
             print("You're oppenning you inventory")
             player.choose_inventory_and_use_item()
+        elif choice =="7":
+            clear_console()
+            player.present()
         else:
             print("\nInvalid choice. Please enter a the number of a valid choice.")
             press_enter_clear() 
@@ -314,6 +322,8 @@ def load_game(save_name: str) -> (Human, list[Entity]): # type: ignore
             player.health = entity_data.get("health")
             player.is_alive = entity_data.get("is_alive")
             player.defense = entity_data.get("defense")
+            player.buff = entity_data.get("buff")
+            player.buff_time = entity_data.get("buff_time")
 
             # Load equipped weapon if available
             if "equipped_weapon" in entity_data:

@@ -27,6 +27,8 @@ class Entity : #top Entity  mother class
         self.defense = 2
         self.pos_x = 0
         self.pos_y = 0
+        self.buff = 0
+        self.buff_time = 0
 
     def present(self):
         print(f"{self.name}  : Lvl : {self.level}")
@@ -47,6 +49,10 @@ class Entity : #top Entity  mother class
             target.health -= (self.strength - target.defense)
             target.update_health()
             round(target.health, 2)
+        if self.buff_time > 0 and self.buff > 0 :
+            self.buff_time -=1
+            if self.buff_time <= 0 :
+                self.strength -= self.buff
                 
     def to_dict(self):
         """Convert the entity to a dictionary."""
@@ -61,7 +67,9 @@ class Entity : #top Entity  mother class
             "is_alive": self.is_alive,
             "defense": self.defense,
             "pos_x": self.pos_x,
-            "pos_y": self.pos_y
+            "pos_y": self.pos_y,
+            "buff": self.buff,
+            "buff_time": self.buff_time
         }
 
 class Human(Entity):
@@ -77,6 +85,7 @@ class Human(Entity):
         self.map = Map(10,10)
         self.pos_x = 5
         self.pos_y = 5
+        
     
     def equip_weapon(self, weapon: "Weapon"):
         if self.equipped_weapon is not None:
@@ -178,6 +187,7 @@ class Human(Entity):
                 print("Invalid choice. Please choose 1 or 2.")
 
     def check_level_up(self):
+        
         if self.xp >= self.max_xp:
             self.level += 1
             self.xp -= self.max_xp
@@ -185,9 +195,11 @@ class Human(Entity):
             self.increase_difficulty()
 
     def increase_difficulty(self):
-        self.max_health = int(self.max_health * (2 ** (self.level - 1)), 0)
+        previous_max_health = self.health
+        self.max_health *= int(2 **(1+ (Entity.level_ratio /10)))
+        self.health += (self.max_health - previous_max_health)
         self.defense *= int(1 + (Entity.level_ratio / 15))
-        self.attack *= int(1 + (Entity.level_ratio / 5))
+        self.strength *= int(1 + (Entity.level_ratio / 5))
    
    
     def to_dict(self):
@@ -204,13 +216,13 @@ class Human(Entity):
         return data
     
     def go_north(self):
-        if self.is_alive and self.pos_y < self.map.height:
+        if self.is_alive and self.pos_y > 0:
             self.pos_y -= 1
         else:
             limit_map_msg()
     
     def go_south(self):
-        if self.is_alive and self.pos_y > 0:
+        if self.is_alive and self.pos_y < self.map.height:
             self.pos_y += 1
         else:
             limit_map_msg()
@@ -239,11 +251,13 @@ class Human(Entity):
     def gain_xp(self):
         # XP scaling with a factor that becomes smaller as the level increases
         xp_multiplier = 1 + (self.level / 10)  # Slowly decreasing multiplier to make it harder to level up
-        xp_gained = random.randint(2, 10) * xp_multiplier
+        xp_gained = int(random.randint(2, 10) * xp_multiplier)
         self.xp += xp_gained
+        self.check_level_up()
         
         # You can log or return the XP gained to track it
-        print(f"Gained {xp_gained:.2f} XP. Current XP: {self.xp}/{self.max_xp}")
+        print(f"Gained {xp_gained:.2f} XP. Current XP: LVL {self.level} :  {self.xp}/{self.max_xp}")
+        
             
 class Monster(Entity):
     def __init__(self, name: str, max_health: int, strength: int, level:int):

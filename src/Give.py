@@ -13,12 +13,12 @@ def give_drop(player:"Human"):
     weapon : "Weapon" = drop_weapon()
     if not potion == None :
         player.add_to_backpack(potion)
-        print("you dropped a Potion")
+        print(f"you dropped a {potion.power} power {potion.name}")
         press_enter_clear()
     
     if not weapon == None :
         player.add_to_backpack(weapon)
-        print("you dropped a weapon")
+        print(f"you dropped a {weapon.strength_bonus} power {weapon.name}")
         press_enter_clear()
         
 def drop_potion()-> Potion: 

@@ -69,7 +69,8 @@ class HealthPotion(Potion):
 class StrengthPotion(Potion):
     def use(self, entity: "Entity"):
         entity.strength += self.power
-    
+        entity.buff += self.power
+        entity.buff_time += 3
     def to_dict(self):
         data = super().to_dict()
         data.update({

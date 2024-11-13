@@ -42,6 +42,7 @@ def print_choice_display():
     print("4. Go West.")
     print("5. Exit and save.")
     print("6. Open Inventory and Use Item or equip weapon")
+    print("7. Show your stats")
 
 def print_about_msg():
     clear_console()
