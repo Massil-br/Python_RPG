@@ -14,7 +14,7 @@ def create_human(username) -> Human:
     return player1
 
 def create_classic_monster(player : "Human", name : str)-> "Monster":
-    classic_monster = Monster(name, random.randint(10,30),random.randint(1,6),player.level)
+    classic_monster = Monster(name, random.randint(10,30),random.randint(3,8),player.level)
     return classic_monster
 
 def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
@@ -39,6 +39,32 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
                 attribute_pos = False  # Break the loop as position is valid
         monsters.append(monster)
     return monsters
+
+def add_monsters(player:"Human", monsters: list["Monster"]):
+    
+    forbidden_positions = {(player.pos_x, player.pos_y), (10,10)}
+    used_positions = set()
+    for monster in monsters:
+        x = monster.pos_x
+        y = monster.pos_y
+        position = (x,y)
+        used_positions.add(position)
+    
+    for i in range(30):
+        monster = create_classic_monster(player, "monster")
+        attribute_pos = True
+        while attribute_pos:
+            x = random.randint(0, 10)  # Adjust the range as needed
+            y = random.randint(0, 10)  # Adjust the range as needed
+            position = (x, y)
+            if position not in forbidden_positions and position not in used_positions:
+                used_positions.add(position)  # Mark the position as used
+                monster.pos_x = position[0]
+                monster.pos_y = position[1] # Assign position to the monster
+                attribute_pos = False  # Break the loop as position is valid
+        monsters.append(monster)
+    return monsters
+    
             
 def start_combat(player: "Human", monster: "Monster"):
     monster.reajust_level(player)

@@ -177,14 +177,19 @@ class Human(Entity):
             else:
                 print("Invalid choice. Please choose 1 or 2.")
 
-
     def check_level_up(self):
         if self.xp >= self.max_xp:
-            self.level +=1
+            self.level += 1
             self.xp -= self.max_xp
-            round(self.max_xp * Entity.level_ratio,0)
-            self.defense * (1 + (Entity.level_ratio/10))
-    
+            self.max_xp = int(self.max_xp * (2**self.level-1))  
+            self.increase_difficulty()
+
+    def increase_difficulty(self):
+        self.max_health = int(self.max_health * (2 ** (self.level - 1)), 0)
+        self.defense *= int(1 + (Entity.level_ratio / 15))
+        self.attack *= int(1 + (Entity.level_ratio / 5))
+   
+   
     def to_dict(self):
         data = super().to_dict()
         data.update({
@@ -232,8 +237,13 @@ class Human(Entity):
         print(f"Defense : {self.defense}") 
     
     def gain_xp(self):
-        bonus = self.level
-        self.xp += (random.randint(2,10) * bonus)
+        # XP scaling with a factor that becomes smaller as the level increases
+        xp_multiplier = 1 + (self.level / 10)  # Slowly decreasing multiplier to make it harder to level up
+        xp_gained = random.randint(2, 10) * xp_multiplier
+        self.xp += xp_gained
+        
+        # You can log or return the XP gained to track it
+        print(f"Gained {xp_gained:.2f} XP. Current XP: {self.xp}/{self.max_xp}")
             
 class Monster(Entity):
     def __init__(self, name: str, max_health: int, strength: int, level:int):
@@ -241,12 +251,10 @@ class Monster(Entity):
         
     def reajust_level(self, player: "Human"):
         self.level = player.level
-    
-        # Adjust and round max_health
-        self.max_health = round((self.max_health * Entity.level_ratio) * self.level, 2)
-        self.health = round((self.health * Entity.level_ratio) * self.level, 2) # Ensure health matches max_health
-        self.strength = round((self.strength * Entity.level_ratio) * self.level, 2)
-
+        self.max_health = int(self.max_health * (2 ** (self.level - 1)))
+        self.health = int(self.max_health)  
+        self.strength = int(self.strength * (1 + (Entity.level_ratio / 5)) ** self.level)
+        self.defense = int(self.defense *(1+(Entity.level_ratio/15))**self.level)
     
 def save_game(entities_list: List[Entity], save_name: str):
     os.makedirs('saves', exist_ok=True)
