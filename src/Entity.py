@@ -136,6 +136,8 @@ class Human(Entity):
                 for i, item in enumerate(self.backpack):
                     print(f"{i}: {item.name}")
                 
+                choosing_item = True
+                
                 while choosing_item:
                     try:
                         index = int(input("Enter the index of the item to use: "))
@@ -198,13 +200,13 @@ class Human(Entity):
     
     def go_north(self):
         if self.is_alive and self.pos_y < self.map.height:
-            self.pos_y += 1
+            self.pos_y -= 1
         else:
             limit_map_msg()
     
     def go_south(self):
         if self.is_alive and self.pos_y > 0:
-            self.pos_y -= 1
+            self.pos_y += 1
         else:
             limit_map_msg()
     

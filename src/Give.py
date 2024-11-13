@@ -6,7 +6,7 @@ from .Menu import press_enter_clear
 def give_start_sword(player: "Human"):
     start_sword = Weapon("Starter Sword", Weapon_type.SWORD, Rarety.BRONZE )
     player.add_to_backpack(start_sword)
-    player.equip_weapon(start_sword)
+    player.use_weapon_backpack_item(0)
     
 def give_drop(player:"Human"):
     potion : "Potion" = drop_potion()
@@ -65,13 +65,13 @@ def drop_weapon() -> Weapon:
         weapon_type = Weapon_type.SWORD
         weapon_name = "SWORD"
     
-    if rarety_rand >80 :
+    if rarety_rand >95 :
         rarety = Rarety.DIAMOND
-    elif rarety_rand >60 :
+    elif rarety_rand >80 :
         rarety = Rarety.GOLD
-    elif rarety_rand > 40 :
+    elif rarety_rand > 50 :
         rarety = Rarety.SILVER
-    elif rarety_rand > 20 :
+    elif rarety_rand > 30 :
         rarety = Rarety.BRONZE
     else:
         rarety = Rarety.IRON

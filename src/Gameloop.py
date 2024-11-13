@@ -21,7 +21,7 @@ def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
     monsters: list["Monster"] = []
     forbidden_positions = {(5, 5), (10, 10)}  # Add any additional forbidden positions here
     used_positions = set()  # Use a set for O(1) average time complexity for lookups
-    boss = Monster("Boss", 100,15,25)
+    boss = Monster("Boss", 150,15,25)
     boss.pos_x = 10
     boss.pos_y = 10
     monsters.append(boss)
