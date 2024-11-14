@@ -14,7 +14,7 @@ def create_human(username) -> Human:
     return player1
 
 def create_classic_monster(player : "Human", name : str)-> "Monster":
-    classic_monster = Monster(name, random.randint(10,30),random.randint(3,8),player.level)
+    classic_monster = Monster(name, random.randint(15,30),random.randint(3,8),player.level)
     return classic_monster
 
 def create_all_monsters(player: "Human", name: str) -> list["Monster"]:
